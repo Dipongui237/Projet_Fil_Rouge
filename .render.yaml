@@ -1,0 +1,36 @@
+services:
+       - type: web
+         name: ticketbus
+         runtime: php
+         phpVersion: "8.2"
+         buildCommand: |
+           php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" && \
+           php composer-setup.php && \
+           php -r "unlink('composer-setup.php');" && \
+           php composer.phar install --no-dev --optimize-autoloader && \
+           yarn install && \
+           yarn build && \
+           php artisan migrate --force
+         startCommand: "php artisan serve --host=0.0.0.0 --port=$PORT"
+         rootDir: "/"
+         envVars:
+           - key: postgresql://ticketbus_db_user:rl3zKRNePJbs9xvmkQAenAaBBbMQzb2f@dpg-d193skp5pdvs73dti3rg-a/ticketbus_db
+             fromDatabase:
+               name: ticketbus_db
+               property: connectionString
+           - key: APP_KEY
+             value: base64:D9euTex6/06XtRPmzJiMjMR3FlnWOQxF3rwv9YkicbM=
+           - key: APP_ENV
+             value: production
+           - key: APP_DEBUG
+             value: false
+           - key: LOG_CHANNEL
+             value: stack
+           - key: CACHE_DRIVER
+             value: file
+           - key: SESSION_DRIVER
+             value: file
+     databases:
+       - name: ticketbus_db
+         databaseName: ticketrbus
+         user: ticketbus
